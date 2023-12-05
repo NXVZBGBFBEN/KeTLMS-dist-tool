@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "ketlms-dist-tool"
+version = "0.1.0"
+description = ""
+authors = ["NXVZBGBFBEN <NXVZBGBFBEN@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
