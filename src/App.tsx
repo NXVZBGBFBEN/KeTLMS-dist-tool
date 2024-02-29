@@ -1,6 +1,8 @@
 import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/tauri";
+import { listen } from "@tauri-apps/api/event";
+import { open } from "@tauri-apps/api/shell";
 import "./App.css";
 
 function App() {
@@ -10,6 +12,14 @@ function App() {
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
     setGreetMsg(await invoke("greet", { name }));
+  }
+
+  async function authorize() {
+    const unlisten = await listen<string>("oauth2-authorization", event => {
+      open(event.payload);
+      unlisten();
+    });
+    invoke("generate_client").then(() => console.log("ok"));
   }
 
   return (
@@ -46,6 +56,8 @@ function App() {
       </form>
 
       <p>{greetMsg}</p>
+
+      <button onClick={authorize}>Authorize</button>
     </div>
   );
 }
