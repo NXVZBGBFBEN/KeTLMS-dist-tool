@@ -1,32 +1,32 @@
-use std::{sync::Arc, thread};
-use dropbox_sdk::default_client::UserAuthDefaultClient;
-use dropbox_sdk::oauth2::AuthorizeUrlBuilder;
-use dropbox_sdk::oauth2::Oauth2Type::PKCE;
-use dropbox_sdk::oauth2::PkceCode;
-use horrorshow::{html, helper::doctype};
+use dropbox_sdk::oauth2::{
+    Authorization, AuthorizeUrlBuilder, Oauth2Type::PKCE, PkceCode, TokenCache,
+};
+use horrorshow::{helper::doctype, html};
 use reserve_port::ReservedPort;
-use tauri::Window;
-use tiny_http::{Server, Response};
+use tauri::{Url, Window};
+use tiny_http::{Response, Server};
 
 const CLIENT_ID: &str = "dvymjgceai5knnj";
 const REDIRECT_PORT: u16 = 8252;
 
 fn oauth_response() -> String {
-    format!("{}", html! {
-        : doctype::HTML;
-        html {
-            head {
-                title: "KeTLMS-dist-tool";
-            }
-            body {
-                h1: "OAuth";
+    format!(
+        "{}",
+        html! {
+            : doctype::HTML;
+            html {
+                head {
+                    title: "KeTLMS-dist-tool";
+                }
+                body {
+                    h1: "OAuth";
+                }
             }
         }
-    })
+    )
 }
 
-#[tauri::command(async)]
-pub async fn generate_client(window: Window) -> Result<(), ()> {
+pub(super) fn generate_token_cache(window: Window) -> Result<TokenCache, ()> {
     let port = match ReservedPort::reserve_port(REDIRECT_PORT) {
         Ok(_) => REDIRECT_PORT,
         Err(e) => panic!("{e}"),
@@ -50,11 +50,32 @@ pub async fn generate_client(window: Window) -> Result<(), ()> {
     };
     let request = match redirect_listener.recv() {
         Ok(request) => request,
-        Err(e) => panic!("{e}")
+        Err(e) => panic!("{e}"),
     };
-    println!("http://127.0.0.1:{}{}", &port, request.url());
+    let request_url = format!("http://127.0.0.1:{}{}", &port, &request.url());
     request.respond(Response::from_data(oauth_response())).ok();
     redirect_listener.unblock();
 
-    Ok(())
+    let auth_code = match Url::parse(request_url.as_str()) {
+        Ok(url) => url
+            .query_pairs()
+            .find_map(|(key, value)| {
+                if key == "code" {
+                    Some(value.to_string())
+                } else {
+                    None
+                }
+            })
+            .unwrap(),
+        Err(e) => panic!("{e}"),
+    };
+
+    let authorization = Authorization::from_auth_code(
+        CLIENT_ID.to_string(),
+        flow_type,
+        auth_code,
+        Some(format!("http://127.0.0.1:{}", &port)),
+    );
+
+    Ok(TokenCache::new(authorization))
 }

@@ -19,7 +19,7 @@ function App() {
       open(event.payload);
       unlisten();
     });
-    invoke("generate_client").then(() => console.log("ok"));
+    invoke("authorize").then(() => console.log("ok"));
   }
 
   return (
@@ -58,6 +58,7 @@ function App() {
       <p>{greetMsg}</p>
 
       <button onClick={authorize}>Authorize</button>
+
     </div>
   );
 }
