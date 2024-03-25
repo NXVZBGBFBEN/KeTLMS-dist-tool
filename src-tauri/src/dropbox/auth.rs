@@ -1,5 +1,6 @@
-use dropbox_sdk::oauth2::{
-    Authorization, AuthorizeUrlBuilder, Oauth2Type::PKCE, PkceCode, TokenCache,
+use dropbox_sdk::{
+    default_client::UserAuthDefaultClient,
+    oauth2::{Authorization, AuthorizeUrlBuilder, Oauth2Type::PKCE, PkceCode},
 };
 use horrorshow::{helper::doctype, html};
 use reserve_port::ReservedPort;
@@ -26,7 +27,7 @@ fn oauth_response() -> String {
     )
 }
 
-pub(super) fn generate_token_cache(window: Window) -> Result<TokenCache, ()> {
+pub(super) fn generate_client(window: Window) -> Result<UserAuthDefaultClient, ()> {
     let port = match ReservedPort::reserve_port(REDIRECT_PORT) {
         Ok(_) => REDIRECT_PORT,
         Err(e) => panic!("{e}"),
@@ -42,10 +43,7 @@ pub(super) fn generate_token_cache(window: Window) -> Result<TokenCache, ()> {
         .unwrap();
 
     let redirect_listener = match Server::http(format!("127.0.0.1:{}", &port)) {
-        Ok(server) => {
-            println!("SERVER OK, port={}", &port);
-            server
-        }
+        Ok(server) => server,
         Err(e) => panic!("{e}"),
     };
     let request = match redirect_listener.recv() {
@@ -77,5 +75,5 @@ pub(super) fn generate_token_cache(window: Window) -> Result<TokenCache, ()> {
         Some(format!("http://127.0.0.1:{}", &port)),
     );
 
-    Ok(TokenCache::new(authorization))
+    Ok(UserAuthDefaultClient::new(authorization))
 }

@@ -12,7 +12,6 @@ fn main() {
     tauri::Builder::default()
         .manage(DropboxState {
             client: Mutex::new(None),
-            token_cache: Mutex::new(None),
         })
         .invoke_handler(tauri::generate_handler![
             dropbox::commands::authorize,
