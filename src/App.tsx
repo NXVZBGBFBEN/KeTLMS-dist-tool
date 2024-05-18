@@ -1,9 +1,7 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/tauri";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/api/shell";
-import "./App.css";
 
 function App() {
   const [greetMsg, setGreetMsg] = useState("");
@@ -23,42 +21,44 @@ function App() {
   }
 
   return (
-    <div className="container">
-      <h1>Welcome to Tauri!</h1>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="">
+      <div className="navbar bg-base-100">
+        <h1 className="text-2xl">KeTLMS-dist-tool</h1>
       </div>
 
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
+      <div className="grid grid-cols-3">
+        <div className="col-span-1">
+          <ul className="steps steps-vertical">
+            <li className="step">Login</li>
+          </ul>
+        </div>
 
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
+        <div className="col-span-2">
+          <h1>Welcome to Tauri!</h1>
+          <h1 className="text-3xl font-bold underline">Welcome to Tauri!</h1>
 
-      <p>{greetMsg}</p>
+          <p>Click on the Tauri, Vite, and React logos to learn more.</p>
 
-      <button onClick={authorize}>Authorize</button>
+          <form
+            className="row"
+            onSubmit={(e) => {
+              e.preventDefault();
+              greet();
+            }}
+          >
+            <input
+              id="greet-input"
+              onChange={(e) => setName(e.currentTarget.value)}
+              placeholder="Enter a name..."
+            />
+            <button type="submit">Greet</button>
+          </form>
 
+          <p>{greetMsg}</p>
+
+          <button onClick={authorize}>Authorize</button>
+        </div>
+      </div>
     </div>
   );
 }
